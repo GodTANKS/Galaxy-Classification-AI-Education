@@ -1,25 +1,350 @@
-import base64
+import io
 import json
 import os
-import sys
-import zlib
+from pathlib import Path
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(ROOT, "src")
-os.makedirs(SRC, exist_ok=True)
+import matplotlib.pyplot as plt
+import numpy as np
+import requests
+import streamlit as st
+from PIL import Image
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
 
-# Packaged web-deployment source generated from the latest local education kit.
-_PAYLOAD = """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[... ELLIPSIZATION ...]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"""
-modules = json.loads(zlib.decompress(base64.b64decode(_PAYLOAD)).decode("utf-8"))
+st.set_page_config(
+    page_title="은하 분류 AI 웹 실습",
+    page_icon="🌌",
+    layout="wide",
+)
 
-for filename, source in modules.items():
-    with open(os.path.join(SRC, filename), "w", encoding="utf-8") as f:
-        f.write(source)
+ROOT = Path(__file__).resolve().parent
+MANIFEST = ROOT / "data" / "remote_manifest.json"
+REMOTE_BASE = "https://raw.githubusercontent.com/GodTANKS/AI_galaxy/main"
 
-if SRC not in sys.path:
-    sys.path.insert(0, SRC)
-os.chdir(SRC)
+CLASSES = {
+    "0": "타원 은하 (Elliptical)",
+    "1": "렌즈 은하 (Lens)",
+    "2": "정상 나선 은하 (Spiral)",
+    "3": "막대 나선 은하 (Barred Spiral)",
+    "4": "불규칙 은하 (Irregular)",
+}
+IMAGE_SIZE = 50
 
-from main import main
+st.markdown("""
+<style>
+.block-container{max-width:1200px;padding-top:2rem}
+.big-title{font-size:2.5rem;font-weight:800;margin-bottom:.2rem}
+.sub{color:#6b7280;margin-bottom:1.5rem}
+.stepbox{padding:1rem;border:1px solid #dbe4f0;border-radius:14px;margin:.5rem 0}
+</style>
+""", unsafe_allow_html=True)
 
-main()
+
+@st.cache_data
+def load_manifest():
+    with open(MANIFEST, "r", encoding="utf-8") as f:
+        return json.load(f)["classes"]
+
+
+@st.cache_data(show_spinner=False)
+def fetch_image(class_key, filename):
+    url = f"{REMOTE_BASE}/{class_key}_{filename}"
+    r = requests.get(url, timeout=45)
+    r.raise_for_status()
+    return r.content
+
+
+def open_image(class_key, filename):
+    return Image.open(io.BytesIO(fetch_image(class_key, filename))).convert("RGB")
+
+
+def parse_range(text, max_n):
+    result = []
+    for token in text.split(","):
+        token = token.strip().replace("이미지", "")
+        if not token:
+            continue
+        if "-" in token:
+            a, b = token.split("-", 1)
+            result.extend(range(int(a), int(b) + 1))
+        else:
+            result.append(int(token))
+    return sorted({i for i in result if 1 <= i <= max_n})
+
+
+def preprocess_one(img, color, augmentations):
+    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.LANCZOS)
+    img = img.convert("RGB" if color else "L")
+    out = [np.array(img)]
+    for aug in augmentations:
+        if aug == "좌우 대칭":
+            out.append(np.array(img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)))
+        elif aug == "90도 회전":
+            out.append(np.array(img.rotate(90)))
+        elif aug == "180도 회전":
+            out.append(np.array(img.rotate(180)))
+        elif aug == "270도 회전":
+            out.append(np.array(img.rotate(270)))
+    return out
+
+
+manifest = load_manifest()
+
+if "selected" not in st.session_state:
+    st.session_state.selected = {k: [] for k in CLASSES}
+if "processed" not in st.session_state:
+    st.session_state.processed = None
+if "result" not in st.session_state:
+    st.session_state.result = None
+
+st.markdown('<div class="big-title">🌌 딥러닝 기반 은하 분류 AI 웹 실습</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="sub">실제 은하 이미지 수집 → 전처리·증강 → CNN 학습 → 혼동행렬 해석을 브라우저에서 직접 수행합니다.</div>',
+    unsafe_allow_html=True,
+)
+
+with st.sidebar:
+    st.header("🚀 실습 단계")
+    step = st.radio(
+        "단계 선택",
+        ["1. 문제 정의", "2. 데이터 수집", "3. 데이터 처리", "4. CNN 학습", "5. 결과 해석"],
+    )
+    st.caption("전체 교육용 배포판의 핵심 흐름을 웹에서 쉽게 실행하도록 구성한 간편판입니다.")
+
+if step == "1. 문제 정의":
+    st.header("1단계 · 문제 정의")
+    st.info(
+        "은하의 형태는 타원, 렌즈, 정상 나선, 막대 나선, 불규칙 등으로 분류할 수 있습니다. "
+        "사람의 눈으로 애매한 이미지를 반복해서 분류하는 대신, CNN이 이미지의 패턴을 학습하도록 해 봅니다."
+    )
+    st.markdown("""
+    ### 탐구 질문
+    - 은하 종류별로 어떤 시각적 특징이 다른가?
+    - 데이터 수와 균형은 AI 분류 성능에 어떤 영향을 줄까?
+    - 회전·대칭 증강은 성능에 도움이 될까?
+    - 어떤 은하끼리 오분류가 많이 발생할까?
+
+    ### 실습 흐름
+    **문제 정의 → 이미지 수집 → 전처리·증강 → 학습/검증 분할 → CNN 학습 → 혼동행렬 해석**
+    """)
+
+elif step == "2. 데이터 수집":
+    st.header("2단계 · 데이터 수집")
+    st.caption("웹 간편판은 현재 공식 실습키트와 동일한 548장 이미지 세트를 기존 데이터 저장소에서 필요한 만큼만 불러옵니다.")
+
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        if st.button("⚡ 각 은하 유형에서 20장씩 자동 수집", type="primary", use_container_width=True):
+            st.session_state.selected = {k: files[:20] for k, files in manifest.items()}
+            st.session_state.processed = None
+            st.session_state.result = None
+            st.success("총 100장의 원본 이미지를 수집했습니다.")
+
+    with c2:
+        if st.button("🗑️ 수집 데이터 초기화", use_container_width=True):
+            st.session_state.selected = {k: [] for k in CLASSES}
+            st.session_state.processed = None
+            st.session_state.result = None
+            st.rerun()
+
+    class_key = st.selectbox("은하 유형 선택", list(CLASSES), format_func=lambda k: CLASSES[k])
+    files = manifest[class_key]
+    st.write(f"전체 이미지: **{len(files)}장**")
+
+    range_text = st.text_input("수집할 이미지 번호", value="1-20", help="예: 1-20, 25, 30-35")
+    if st.button("선택 범위 수집"):
+        idxs = parse_range(range_text, len(files))
+        selected = st.session_state.selected[class_key]
+        for i in idxs:
+            name = files[i - 1]
+            if name not in selected:
+                selected.append(name)
+        st.session_state.processed = None
+        st.session_state.result = None
+        st.success(f"{CLASSES[class_key]}: 현재 {len(selected)}장 수집됨")
+
+    st.subheader("미리보기")
+    preview_start = st.number_input("미리보기 시작 번호", 1, max(1, len(files)), 1, step=10)
+    preview = files[int(preview_start)-1:int(preview_start)-1+10]
+    cols = st.columns(5)
+    for i, name in enumerate(preview):
+        with cols[i % 5]:
+            try:
+                st.image(open_image(class_key, name), caption=f"{int(preview_start)+i}. {name}", use_container_width=True)
+            except Exception as e:
+                st.warning(f"로드 실패: {name}")
+
+    st.divider()
+    st.subheader("현재 수집 현황")
+    for k, label in CLASSES.items():
+        st.write(f"- {label}: **{len(st.session_state.selected[k])}장**")
+
+elif step == "3. 데이터 처리":
+    st.header("3단계 · 데이터 처리 및 증강")
+
+    color = st.checkbox("RGB 컬러로 학습", value=False)
+    augmentations = st.multiselect(
+        "데이터 증강",
+        ["좌우 대칭", "90도 회전", "180도 회전", "270도 회전"],
+        default=["좌우 대칭"],
+    )
+
+    total_original = sum(len(v) for v in st.session_state.selected.values())
+    st.write(f"수집된 원본: **{total_original}장**")
+
+    if st.button("⚙️ 전처리 실행", type="primary"):
+        if total_original == 0:
+            st.error("먼저 2단계에서 이미지를 수집하세요.")
+        else:
+            X, y = [], []
+            prog = st.progress(0)
+            jobs = [(k, n) for k, names in st.session_state.selected.items() for n in names]
+            for j, (k, name) in enumerate(jobs):
+                img = open_image(k, name)
+                variants = preprocess_one(img, color, augmentations)
+                X.extend(variants)
+                y.extend([int(k)] * len(variants))
+                prog.progress((j + 1) / len(jobs))
+
+            X = np.asarray(X, dtype=np.float32) / 255.0
+            if not color:
+                X = X.reshape(-1, IMAGE_SIZE, IMAGE_SIZE, 1)
+            st.session_state.processed = {
+                "X": X,
+                "y": np.asarray(y, dtype=np.int64),
+                "color": color,
+                "augmentations": augmentations,
+            }
+            st.session_state.result = None
+            st.success(f"완료: **{len(X)}개** 학습용 이미지 생성")
+
+    if st.session_state.processed is not None:
+        p = st.session_state.processed
+        st.write(f"현재 처리 데이터: **{len(p['X'])}개**")
+        st.write("이미지 크기:", p["X"].shape[1:])
+
+elif step == "4. CNN 학습":
+    st.header("4단계 · CNN 학습")
+    if st.session_state.processed is None:
+        st.warning("먼저 3단계에서 전처리를 실행하세요.")
+        st.stop()
+
+    p = st.session_state.processed
+    X, y = p["X"], p["y"]
+
+    counts = {i: int(np.sum(y == i)) for i in range(5)}
+    st.write("클래스별 처리 데이터:", {CLASSES[str(k)]: v for k, v in counts.items()})
+
+    if any(v < 3 for v in counts.values()):
+        st.error("모든 은하 유형에서 최소 3개 이상의 처리 이미지가 필요합니다. 2단계에서 각 유형의 이미지를 더 수집하세요.")
+        st.stop()
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        epochs = st.slider("Epochs", 3, 20, 5)
+    with c2:
+        learning_rate = st.select_slider("Learning rate", [0.0001, 0.0003, 0.001, 0.003, 0.01], value=0.001)
+    with c3:
+        batch_size = st.selectbox("Batch size", [8, 16, 32], index=1)
+
+    if st.button("🔥 CNN 학습 시작", type="primary"):
+        import tensorflow as tf
+
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
+
+        input_shape = X_train.shape[1:]
+        model = tf.keras.Sequential([
+            tf.keras.layers.Input(shape=input_shape),
+            tf.keras.layers.Conv2D(32, 3, activation="relu", padding="same"),
+            tf.keras.layers.MaxPooling2D(2),
+            tf.keras.layers.Conv2D(64, 3, activation="relu", padding="same"),
+            tf.keras.layers.MaxPooling2D(2),
+            tf.keras.layers.Conv2D(128, 3, activation="relu", padding="same"),
+            tf.keras.layers.MaxPooling2D(2),
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(128, activation="relu"),
+            tf.keras.layers.Dropout(0.25),
+            tf.keras.layers.Dense(5, activation="softmax"),
+        ])
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+            loss="sparse_categorical_crossentropy",
+            metrics=["accuracy"],
+        )
+
+        with st.spinner("CNN을 학습하고 있습니다..."):
+            hist = model.fit(
+                X_train, y_train,
+                validation_split=0.2,
+                epochs=epochs,
+                batch_size=batch_size,
+                verbose=0,
+            )
+
+        loss, acc = model.evaluate(X_test, y_test, verbose=0)
+        pred = np.argmax(model.predict(X_test, verbose=0), axis=1)
+        cm = confusion_matrix(y_test, pred, labels=[0,1,2,3,4])
+
+        st.session_state.result = {
+            "history": hist.history,
+            "accuracy": float(acc),
+            "loss": float(loss),
+            "cm": cm,
+            "y_test": y_test,
+            "pred": pred,
+        }
+        st.success(f"학습 완료 · 테스트 정확도 **{acc:.3f}**")
+
+    if st.session_state.result is not None:
+        r = st.session_state.result
+        st.metric("테스트 정확도", f"{r['accuracy']:.3f}")
+        st.metric("테스트 손실값", f"{r['loss']:.3f}")
+
+elif step == "5. 결과 해석":
+    st.header("5단계 · 결과 해석")
+    r = st.session_state.result
+    if r is None:
+        st.warning("먼저 4단계에서 CNN을 학습하세요.")
+        st.stop()
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.subheader("학습 곡선")
+        fig, ax = plt.subplots()
+        ax.plot(r["history"]["accuracy"], label="train accuracy")
+        ax.plot(r["history"]["val_accuracy"], label="validation accuracy")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Accuracy")
+        ax.legend()
+        st.pyplot(fig)
+
+    with c2:
+        st.subheader("혼동행렬")
+        fig, ax = plt.subplots(figsize=(6, 5))
+        im = ax.imshow(r["cm"], cmap="Blues")
+        labels = [CLASSES[str(i)].split(" ")[0] for i in range(5)]
+        ax.set_xticks(range(5), labels, rotation=45, ha="right")
+        ax.set_yticks(range(5), labels)
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("True")
+        for i in range(5):
+            for j in range(5):
+                ax.text(j, i, int(r["cm"][i, j]), ha="center", va="center")
+        st.pyplot(fig)
+
+    st.success(f"테스트 정확도: {r['accuracy']:.3f}")
+    st.markdown("""
+    ### 생각해 보기
+    - 어떤 두 은하 유형 사이에서 오분류가 가장 많았나요?
+    - 데이터 증강을 바꾸면 결과가 어떻게 달라지나요?
+    - 각 유형의 데이터 수를 늘리면 성능은 어떻게 변하나요?
+    - 높은 정확도가 항상 좋은 과학적 모델을 의미할까요?
+    """)
+
+st.divider()
+st.caption(
+    "연구·교육용 웹 간편판 · 전체 교육용 배포판과 논문은 "
+    "https://GodTANKS.github.io/astronomy-data-science/ 에서 확인할 수 있습니다."
+)
