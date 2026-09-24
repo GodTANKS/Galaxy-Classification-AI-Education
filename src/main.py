@@ -2,6 +2,7 @@ import streamlit as st
 import ui
 
 def main():
+    # 1. 기본 설정 및 CSS 디자인 적용 (디자인 유지)
     st.set_page_config(
         page_title="딥러닝 기반 은하 분류 탐구",
         page_icon="🌌",
@@ -21,6 +22,7 @@ def main():
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="main-title">🌌 딥러닝을 활용한 은하 분류 분석</div>', unsafe_allow_html=True)
+
     st.markdown("""
     <div style="text-align: center; color: gray; margin-bottom: 30px; font-size: 0.9rem;">
     1.문제 정의 &nbsp; ➤ &nbsp; 2.데이터 수집 &nbsp; ➤ &nbsp; 3.전처리 &nbsp; ➤ &nbsp; 4.탐색 &nbsp; ➤ &nbsp; 5.분석 및 표현 &nbsp; ➤ &nbsp; 6.일반화
@@ -28,6 +30,8 @@ def main():
     """, unsafe_allow_html=True)
 
     BASE_FOLDER = "galaxy_rne"
+
+    # [수정됨] 다시 원본처럼 영문 이름으로만 표기되도록 복구
     FOLDER_NAMES = {
         "0": "Elliptical Galaxy",
         "1": "Lens Galaxy",
