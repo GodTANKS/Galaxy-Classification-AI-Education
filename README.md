@@ -8,6 +8,37 @@
 
 ---
 
+## 🌐 웹에서 바로 실행하는 Streamlit 간편판
+
+이 저장소에는 **Streamlit Community Cloud용 웹 간편판** `streamlit_app.py`가 포함되어 있습니다.
+
+웹 간편판은 별도의 Windows/macOS 설치 없이 브라우저에서 다음 핵심 실습을 수행하도록 구성했습니다.
+
+- 5개 은하 유형 이미지 수집
+- 유형별 이미지 미리보기
+- 50×50 이미지 전처리
+- 좌우 대칭·90°·180°·270° 회전 데이터 증강
+- 학습/테스트 데이터 분할
+- CNN 학습
+- 정확도·손실값 확인
+- 혼동행렬 확인
+- 오분류와 데이터 편향에 대한 탐구 질문
+
+웹 앱은 기존 548장 은하 이미지 세트를 필요한 만큼 원격으로 불러오는 방식이어서, 약 300MB의 전체 이미지 폴더를 Streamlit 서버에 미리 복사하지 않아도 됩니다.
+
+### Streamlit Community Cloud 배포 설정
+
+- Repository: `GodTANKS/Galaxy-Classification-AI-Education`
+- Branch: `main`
+- Main file path: `streamlit_app.py`
+- 권장 Python: `3.12`
+
+한 번 배포하면 발급되는 `*.streamlit.app` 주소를 통합 홈페이지의 **웹 실습 바로 시작** 버튼에 연결해 사용할 수 있습니다.
+
+> 웹 간편판은 설치 없이 핵심 학습 흐름을 체험하기 위한 버전입니다. 논문용 전체 교육 실습키트와 Windows/macOS 완성 배포본은 별도로 유지합니다.
+
+---
+
 ## 🚀 가장 쉬운 실행 방법
 
 ### Windows
@@ -41,7 +72,7 @@
 
 이 저장소는 **최신 은하분류 AI 실습키트의 공식 저장소**입니다.
 
-현재는 소스와 실행 안내를 정리하는 단계이며, 전체 은하 이미지 데이터(`galaxy_rne`)와 Windows/macOS 완성 배포 ZIP은 **GitHub Releases**에서 제공하는 구조로 설계했습니다.
+현재 **웹 간편판 `streamlit_app.py`는 Streamlit Community Cloud에 바로 배포할 수 있는 구조로 준비**되어 있습니다. 전체 은하 이미지 데이터(`galaxy_rne`)와 Windows/macOS 완성 배포 ZIP은 별도로 **GitHub Releases**에서 제공하는 구조로 유지합니다.
 
 따라서 처음 방문한 사용자는:
 
