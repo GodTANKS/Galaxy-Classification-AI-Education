@@ -1,0 +1,7 @@
+__pycache__/
+.venv/
+.venv_mac/
+.DS_Store
+*.pyc
+.env
+galaxy_rne/
