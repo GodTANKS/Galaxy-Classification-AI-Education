@@ -343,17 +343,41 @@ def get_layer_details_korean(model):
     return df, info_text
 
 
-def get_callbacks(patience, reduce_patience, reduce_factor, min_lr):
-    """[복구 완료] 조기 종료, 최고 모델 저장, 엑셀 로그 기록 등 원본 콜백 완전 복구"""
-    early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=patience, restore_best_weights=True,
-                                                  verbose=1)
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=reduce_factor, patience=reduce_patience,
-                                                     min_lr=min_lr, verbose=1)
+def get_callbacks(patience, reduce_patience, reduce_factor, min_lr, output_dir):
+    """
+    조기 종료, 최고 모델 저장, CSV 로그 기록 콜백을 생성합니다.
 
-    # 모델 저장 및 CSV 기록 기능 복구
-    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath="best_model.h5", monitor="val_accuracy",
-                                                          save_best_only=True, verbose=0)
-    csv_logger = tf.keras.callbacks.CSVLogger("training_log.csv", append=True)
+    다중 사용자 환경에서 파일 충돌이 발생하지 않도록
+    ``best_model.h5``와 ``training_log.csv``를 반드시 사용자/실행별
+    ``output_dir`` 안에 저장합니다.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor='val_accuracy',
+        patience=patience,
+        restore_best_weights=True,
+        verbose=1
+    )
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=reduce_factor,
+        patience=reduce_patience,
+        min_lr=min_lr,
+        verbose=1
+    )
+
+    best_model_path = os.path.join(output_dir, "best_model.h5")
+    training_log_path = os.path.join(output_dir, "training_log.csv")
+
+    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+        filepath=best_model_path,
+        monitor="val_accuracy",
+        save_best_only=True,
+        verbose=0
+    )
+    # 실행별 새 로그 파일을 사용하므로 append=False로 시작합니다.
+    csv_logger = tf.keras.callbacks.CSVLogger(training_log_path, append=False)
 
     return [early_stop, model_checkpoint, reduce_lr, csv_logger]
 
