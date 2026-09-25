@@ -3,6 +3,9 @@ import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
+import tempfile
+import shutil
+import uuid
 import re
 import time
 import platform
@@ -644,8 +647,35 @@ def step_5(folder_names):
             metrics=["accuracy"]
         )
 
-        callbacks = [RealTimePlotCallback(epochs)] + utils.get_callbacks(es_pat, rl_pat, reduce_lr_factor,
-                                                                         reduce_lr_min)
+        # ---------------------------------------------------------
+        # [다중 사용자 안전] 사용자 세션 + 이번 학습 실행 전용 폴더 생성
+        # ---------------------------------------------------------
+        if 'session_id' not in st.session_state:
+            # main.py를 거치지 않고 step_5가 직접 호출되는 예외 상황도 대비
+            st.session_state.session_id = uuid.uuid4().hex
+
+        # 같은 사용자가 다시 학습할 때 이전 임시 산출물은 정리하여
+        # 서버 디스크 사용량이 계속 증가하지 않도록 합니다.
+        previous_dir = st.session_state.get('training_output_dir')
+        if previous_dir and os.path.isdir(previous_dir):
+            shutil.rmtree(previous_dir, ignore_errors=True)
+
+        run_dir = tempfile.mkdtemp(
+            prefix=f"galaxy_{st.session_state.session_id[:8]}_"
+        )
+        st.session_state.training_output_dir = run_dir
+
+        callbacks = [RealTimePlotCallback(epochs)] + utils.get_callbacks(
+            es_pat,
+            rl_pat,
+            reduce_lr_factor,
+            reduce_lr_min,
+            output_dir=run_dir
+        )
+
+        st.caption(
+            "🔐 이번 학습의 모델 체크포인트와 학습 로그는 현재 사용자 전용 임시 공간에 저장됩니다."
+        )
 
         start_time = time.time()
         model.fit(
