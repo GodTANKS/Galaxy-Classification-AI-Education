@@ -199,3 +199,14 @@ https://sites.google.com/view/astronomydatascience/
 
 기존 `Galaxy`, `AI_galaxy`, `Galaxy_Classification_Deepleaning` 저장소는 이번 최신 실습키트의 공식 저장소로 사용하지 않습니다.  
 **이 저장소가 최신 교육용 배포판의 공식 저장소입니다.**
+
+---
+
+## 📘 교육·학습 목적 이용 조건
+
+이 저장소에서 **공개된 코드·노트북·교육 자료**는 원저자·원본 저장소·관련 논문 출처를 명시하는 조건으로 **교육·학습 및 비상업적 연구 목적의 복제·수정·재배포가 가능합니다.**
+
+**상업적 판매·유료 서비스·출처 삭제·타인의 독창적 연구 결과인 것처럼 사용하는 행위는 허용하지 않습니다.**
+
+자세한 조건: [EDUCATIONAL_USE_NOTICE.md](EDUCATIONAL_USE_NOTICE.md)
+
