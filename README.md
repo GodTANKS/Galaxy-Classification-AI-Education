@@ -22,39 +22,32 @@ Streamlit 웹 버전은 **새로 단순화한 별도 앱이 아니라, 논문 �
 
 ## 👥 다중 사용자 실습 안내
 
-본 웹 실습은 **개인 학습 및 소규모 체험을 위한 Streamlit 기반 교육용 서비스**입니다.
+웹 버전은 여러 사용자의 **세션·수집 데이터·전처리 상태·CNN 학습 결과 파일이 서로 섞이지 않도록 분리**되어 있습니다. 따라서 여러 사람이 접속한다고 해서 학생별 데이터가 서로 덮어쓰는 구조는 아닙니다.
 
-여러 사용자가 동시에 접속하여 화면을 살펴보거나 데이터를 탐색하는 것은 가능하지만, 여러 명이 동시에 **CNN 모델 학습 및 AI 분석을 실행할 경우 하나의 Streamlit 서버의 CPU·메모리를 함께 사용하므로 실행 속도가 느려지거나 실습이 중단될 수 있습니다.**
+다만 웹에서 CNN을 학습할 때는 모든 사용자가 **같은 Streamlit 서버의 CPU·메모리 자원**을 공유합니다. 동시에 많은 사용자가 모델 학습을 실행하면 속도가 느려지거나 서버가 불안정해질 수 있습니다.
 
-현재 웹 앱은 사용자별 세션을 구분하고, CNN 학습 시 생성되는 `best_model.h5`와 `training_log.csv`도 **사용자·학습 실행별 임시 폴더에 분리하여 저장**하도록 구성되어 있습니다. 따라서 여러 사용자의 학습 결과 파일이 서로 덮어쓰지 않도록 처리되어 있습니다.
+- **개인·소규모 실습:** 아래 Streamlit 웹 버전을 바로 이용
+- **10명 이상의 수업·워크숍:** Windows/macOS 배포본을 내려받아 각 PC에서 개별 실행 권장
 
-따라서 **10명 이상의 수업·워크숍 등 다수 인원이 동시에 실습하는 경우에는 웹 버전에서 동시에 모델 학습을 수행하기보다 GitHub에서 실습 프로그램을 내려받아 각자의 PC에서 개별적으로 실행하는 것을 권장합니다.**
+**[🌐 Streamlit 웹 실습 바로 시작](https://galaxy-ai-education.streamlit.app/)**
 
-- **개인·소규모 실습:** Streamlit 웹 버전 이용
-- **수업·워크숍 등 다수 인원 실습:** GitHub에서 실습 프로그램 다운로드 후 개별 PC에서 실행
-- **웹 버전:** 설치 없이 콘텐츠를 빠르게 체험하거나 수업 시연용으로 활용
-
-각 PC에서 프로그램을 실행하면 계산이 개인 컴퓨터에서 독립적으로 수행되므로 여러 학생이 동시에 실습하더라도 서로의 분석 과정이나 서버 자원에 영향을 주지 않습니다.
-
-> **참고:** 위의 `10명`은 Streamlit의 공식 동시접속 제한이 아니라, CNN 학습이 포함된 본 교육 콘텐츠를 안정적으로 운영하기 위한 권장 기준입니다.
+> `10명`은 Streamlit의 공식 접속 제한이 아니라, CNN 학습이 포함된 본 콘텐츠의 안정적인 수업 운영을 위한 권장 기준입니다.
 
 ---
 
-### Streamlit Community Cloud 배포 설정
+## 📥 배포본·소스코드 다운로드
 
-- Repository: `GodTANKS/Galaxy-Classification-AI-Education`
-- Branch: `main`
-- Main file path: `streamlit_app.py`
-- Python: `3.12` 권장
-
-> 기존에 잠시 배포되었던 단순화 웹앱은 사용하지 않습니다. 현재 `streamlit_app.py`는 논문 제출 최종 실습키트를 복원해 실행하도록 수정되었습니다.
+- **[🪟 Windows 실습키트 다운로드](https://github.com/GodTANKS/Galaxy-Classification-AI-Education/releases/latest/download/galaxy-ai-windows.zip)**
+- **[🍎 macOS 실습키트 다운로드](https://github.com/GodTANKS/Galaxy-Classification-AI-Education/releases/latest/download/galaxy-ai-macos.zip)**
+- **[📦 소스코드 저장소 전체 ZIP](https://github.com/GodTANKS/Galaxy-Classification-AI-Education/archive/refs/heads/main.zip)**
+- **[🏷️ 최신 GitHub Release 보기](https://github.com/GodTANKS/Galaxy-Classification-AI-Education/releases/latest)**
 
 ---
 
 ## 🚀 가장 쉬운 실행 방법
 
 ### Windows
-완성 배포 ZIP이 GitHub Releases에 공개된 경우:
+정식 배포본을 사용하는 경우:
 
 1. `galaxy-ai-windows.zip`을 다운로드합니다.
 2. ZIP을 **반드시 압축 해제**합니다.
@@ -63,7 +56,7 @@ Streamlit 웹 버전은 **새로 단순화한 별도 앱이 아니라, 논문 �
 5. 잠시 후 웹브라우저에서 Streamlit 실습 화면이 열립니다.
 
 ### macOS
-완성 배포 ZIP이 GitHub Releases에 공개된 경우:
+정식 배포본을 사용하는 경우:
 
 1. `galaxy-ai-macos.zip`을 다운로드합니다.
 2. 압축을 해제합니다.
@@ -80,17 +73,14 @@ Streamlit 웹 버전은 **새로 단순화한 별도 앱이 아니라, 논문 �
 
 ---
 
-## 📌 현재 GitHub 공개 상태
+## 📌 현재 공개 방식
 
 이 저장소는 **최신 은하분류 AI 실습키트의 공식 저장소**입니다.
 
-현재 **웹 간편판 `streamlit_app.py`는 Streamlit Community Cloud에 바로 배포할 수 있는 구조로 준비**되어 있습니다. 전체 은하 이미지 데이터(`galaxy_rne`)와 Windows/macOS 완성 배포 ZIP은 별도로 **GitHub Releases**에서 제공하는 구조로 유지합니다.
-
-따라서 처음 방문한 사용자는:
-
-- Releases에 완성 ZIP이 있으면 → **ZIP 다운로드 후 실행기 클릭**
-- Releases가 아직 비어 있으면 → 배포본 공개 전 상태
-- 소스 코드를 직접 실행하려면 → 아래 개발자용 실행 방법 참고
+- **웹 실습:** Streamlit에서 설치 없이 바로 실행
+- **단체수업·로컬 실습:** GitHub Releases의 Windows/macOS 완성 배포본 사용
+- **개발·수정:** 저장소의 `src/` 소스코드 직접 사용
+- **전체 은하 이미지:** 완성 배포본에 포함
 
 ---
 
