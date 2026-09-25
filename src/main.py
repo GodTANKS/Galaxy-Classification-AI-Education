@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 import ui
 
 def main():
@@ -40,6 +41,11 @@ def main():
         "4": "Irregular Galaxy",
     }
 
+    # 각 브라우저 세션을 구분하는 고유 ID입니다.
+    # 데이터 선택/전처리 상태뿐 아니라 학습 산출물도 사용자별로 분리할 때 사용합니다.
+    if 'session_id' not in st.session_state:
+        st.session_state.session_id = uuid.uuid4().hex
+
     if 'selected_folder' not in st.session_state:
         st.session_state.selected_folder = None
     if 'collected_data' not in st.session_state:
@@ -48,6 +54,14 @@ def main():
         st.session_state.processed_data = {key: [] for key in FOLDER_NAMES.keys()}
     if 'processing_log' not in st.session_state:
         st.session_state.processing_log = {}
+
+    st.sidebar.info(
+        "👥 **다중 사용자 이용 안내**\n\n"
+        "웹 버전은 개인·소규모 체험에 적합합니다. "
+        "여러 사용자가 동시에 CNN 학습을 실행하면 서버 자원 부족으로 느려지거나 중단될 수 있습니다.\n\n"
+        "**10명 이상의 수업·워크숍에서는 GitHub에서 실습 프로그램을 내려받아 "
+        "각 PC에서 개별 실행하는 것을 권장합니다.**"
+    )
 
     st.sidebar.header("🚀 탐구 단계 선택")
     step = st.sidebar.radio(
